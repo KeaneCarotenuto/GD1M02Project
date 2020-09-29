@@ -32,10 +32,12 @@ void ClearMatrices(HWND _hwnd);
 
 void AddMatrix(HWND _hwnd);
 void SubtractMatrix(HWND _hwnd);
+
 void SetToIdentity(HWND _hwnd, bool isA);
+void MultiplyBy(HWND _hwnd, bool isA);
 void Transpose(HWND _hwnd, bool isA);
 
-int matrixA[4][4], matrixB[4][4], matrixR[4][4];
+float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
 	{IDC_EDIT_A11,IDC_EDIT_A12,IDC_EDIT_A13,IDC_EDIT_A14},
 	{IDC_EDIT_A21,IDC_EDIT_A22,IDC_EDIT_A23,IDC_EDIT_A24},
@@ -186,6 +188,18 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDOK4:
 		{
 			SetToIdentity(_hwnd, true);
+			break;
+		}
+
+		case IDOK6:
+		{
+			MultiplyBy(_hwnd, true);
+			break;
+		}
+
+		case IDOK10:
+		{
+			MultiplyBy(_hwnd, false);
 			break;
 		}
 
@@ -507,42 +521,55 @@ void ClearMatrices(HWND _hwnd)
 
 void AddMatrix(HWND _hwnd)
 {
+	ReadMatrices(_hwnd);
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-			ReadMatrices(_hwnd);
 
 			matrixR[y][x] = matrixA[y][x] + matrixB[y][x];
 
-			WriteMatrices(_hwnd);
 		}
 	}
+	WriteMatrices(_hwnd);
 }
 
 void SubtractMatrix(HWND _hwnd)
 {
+	ReadMatrices(_hwnd);
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-			ReadMatrices(_hwnd);
 
 			matrixR[y][x] = matrixA[y][x] - matrixB[y][x];
 
-			WriteMatrices(_hwnd);
 		}
 	}
+	WriteMatrices(_hwnd);
 }
 
 void SetToIdentity(HWND _hwnd, bool isA)
 {
+	ReadMatrices(_hwnd);
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-			ReadMatrices(_hwnd);
 
 			if (y == x) (isA ? matrixA : matrixB)[y][x] = 1;
 			else (isA ? matrixA : matrixB)[y][x] = 0;
 
-			WriteMatrices(_hwnd);
 		}
 	}
+	WriteMatrices(_hwnd);
+}
+
+void MultiplyBy(HWND _hwnd, bool isA)
+{
+	ReadMatrices(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			
+			(isA ? matrixA : matrixB)[y][x] *= ReadFromEditBox(_hwnd, (isA ? IDC_EDIT_AScaled : IDC_EDIT_BScaled));
+
+		}
+	}
+	WriteMatrices(_hwnd);
 }
 
 void Transpose(HWND _hwnd, bool isA)
@@ -551,11 +578,7 @@ void Transpose(HWND _hwnd, bool isA)
 	WriteMatrices(_hwnd);
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-			
-
 			(isA ? matrixA : matrixB)[y][x] = ReadFromEditBox(_hwnd, (isA ? matrixAID : matrixBID)[x][y]);
-
-			
 		}
 	}
 	WriteMatrices(_hwnd);
