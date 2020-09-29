@@ -578,7 +578,9 @@ void Transpose(HWND _hwnd, bool isA)
 	WriteMatrices(_hwnd);
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
+
 			(isA ? matrixA : matrixB)[y][x] = ReadFromEditBox(_hwnd, (isA ? matrixAID : matrixBID)[x][y]);
+
 		}
 	}
 	WriteMatrices(_hwnd);
