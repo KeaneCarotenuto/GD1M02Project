@@ -68,7 +68,7 @@ float ReadFromEditBox(HWND _hDlg, int _iResourceID)
 void WriteToEditBox(HWND _hDlg, int _iResourceID, float _fValue)
 {
 	std::wstring _strValue = ToWideString(_fValue);
-	SetDlgItemText(_hDlg, _iResourceID, _strValue.c_str());
+	SetDlgItemText(_hDlg, _iResourceID, (_fValue == -INFINITY ? L"" : _strValue.c_str()));
 }
 
 #endif    // __UTILS_H__

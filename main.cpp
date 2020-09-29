@@ -468,13 +468,14 @@ void ClearMatrices(HWND _hwnd)
 {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-			matrixA[y][x] = NULL;
-			matrixB[y][x] = NULL;
-			matrixR[y][x] = NULL;
+			matrixA[y][x] = -INFINITY;
+			matrixB[y][x] = -INFINITY;
+			matrixR[y][x] = -INFINITY;
 
-			WriteToEditBox(_hwnd, matrixAID[y][x], NULL);
-			WriteToEditBox(_hwnd, matrixBID[y][x], NULL);
-			WriteToEditBox(_hwnd, matrixRID[y][x], NULL);
+			
+			WriteToEditBox(_hwnd, matrixAID[y][x], -INFINITY);
+			WriteToEditBox(_hwnd, matrixBID[y][x], -INFINITY);
+			WriteToEditBox(_hwnd, matrixRID[y][x], -INFINITY);
 		}
 	}
 }
