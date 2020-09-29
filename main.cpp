@@ -442,6 +442,7 @@ void AddMatrix(HWND _hwnd)
 			matrixB[y][x] = ReadFromEditBox(_hwnd, matrixBID[y][x]);
 
 			resultantMat[y][x] = matrixA[y][x] + matrixB[y][x];
+
 			WriteToEditBox(_hwnd, matrixRID[y][x], resultantMat[y][x]);
 		}
 	}
@@ -451,15 +452,8 @@ void SetToIdentity(HWND _hwnd, bool isA)
 {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
-
-			if (y == x)
-			{
-				(isA ? matrixA : matrixB)[y][x] = 1;
-			}
-			else
-			{
-				(isA ? matrixA : matrixB)[y][x] = 0;
-			}
+			if (y == x) (isA ? matrixA : matrixB)[y][x] = 1;
+			else (isA ? matrixA : matrixB)[y][x] = 0;
 
 			WriteToEditBox(_hwnd, (isA ? matrixAID : matrixBID)[y][x], (isA ? matrixA : matrixB)[y][x]);
 		}
