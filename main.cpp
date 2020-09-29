@@ -33,6 +33,7 @@ void ClearMatrices(HWND _hwnd);
 void AddMatrix(HWND _hwnd);
 void SubtractMatrix(HWND _hwnd);
 void SetToIdentity(HWND _hwnd, bool isA);
+void Transpose(HWND _hwnd, bool isA);
 
 int matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
@@ -191,6 +192,18 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDOK8:
 		{
 			SetToIdentity(_hwnd, false);
+			break;
+		}
+
+		case IDOK9:
+		{
+			Transpose(_hwnd, true);
+			break;
+		}
+
+		case IDOK11:
+		{
+			Transpose(_hwnd, false);
 			break;
 		}
 
@@ -530,4 +543,20 @@ void SetToIdentity(HWND _hwnd, bool isA)
 			WriteMatrices(_hwnd);
 		}
 	}
+}
+
+void Transpose(HWND _hwnd, bool isA)
+{
+	ReadMatrices(_hwnd);
+	WriteMatrices(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			
+
+			(isA ? matrixA : matrixB)[y][x] = ReadFromEditBox(_hwnd, (isA ? matrixAID : matrixBID)[x][y]);
+
+			
+		}
+	}
+	WriteMatrices(_hwnd);
 }
