@@ -31,6 +31,7 @@ void WriteMatrices(HWND _hwnd);
 void ClearMatrices(HWND _hwnd);
 
 void AddMatrix(HWND _hwnd);
+void SubtractMatrix(HWND _hwnd);
 void SetToIdentity(HWND _hwnd, bool isA);
 
 int matrixA[4][4], matrixB[4][4], matrixR[4][4];
@@ -181,19 +182,27 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 			break;
 		}
 
-		case IDOK:
-		{
-			AddMatrix(_hwnd);
-			break;
-		}
 		case IDOK4:
 		{
 			SetToIdentity(_hwnd, true);
 			break;
 		}
+
 		case IDOK8:
 		{
 			SetToIdentity(_hwnd, false);
+			break;
+		}
+
+		case IDOK:
+		{
+			AddMatrix(_hwnd);
+			break;
+		}
+
+		case IDCANCEL:
+		{
+			SubtractMatrix(_hwnd);
 			break;
 		}
 
@@ -202,6 +211,9 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 			ClearMatrices(_hwnd);
 			break;
 		}
+		
+		
+
 		default:
 			break;
 		}
@@ -487,6 +499,19 @@ void AddMatrix(HWND _hwnd)
 			ReadMatrices(_hwnd);
 
 			matrixR[y][x] = matrixA[y][x] + matrixB[y][x];
+
+			WriteMatrices(_hwnd);
+		}
+	}
+}
+
+void SubtractMatrix(HWND _hwnd)
+{
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			ReadMatrices(_hwnd);
+
+			matrixR[y][x] = matrixA[y][x] - matrixB[y][x];
 
 			WriteMatrices(_hwnd);
 		}
