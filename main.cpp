@@ -26,10 +26,14 @@
 HMENU g_hMenu;
 HWND g_hDlgMatrix, g_hDlgTransformation, g_hDlgGaussian, g_hDlgQuaternion, g_hDlgSLERP;
 
+void ReadMatrices(HWND _hwnd);
+void WriteMatrices(HWND _hwnd);
+void ClearMatrices(HWND _hwnd);
+
 void AddMatrix(HWND _hwnd);
 void SetToIdentity(HWND _hwnd, bool isA);
 
-int matrixA[4][4], matrixB[4][4], resultantMat[4][4];
+int matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
 	{IDC_EDIT_A11,IDC_EDIT_A12,IDC_EDIT_A13,IDC_EDIT_A14},
 	{IDC_EDIT_A21,IDC_EDIT_A22,IDC_EDIT_A23,IDC_EDIT_A24},
@@ -190,6 +194,12 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDOK8:
 		{
 			SetToIdentity(_hwnd, false);
+			break;
+		}
+
+		case CLEARALL:
+		{
+			ClearMatrices(_hwnd);
 			break;
 		}
 		default:
@@ -434,16 +444,50 @@ int WINAPI WinMain(HINSTANCE _hInstance,
 	return (static_cast<int>(msg.wParam));
 }
 
-void AddMatrix(HWND _hwnd)
-{
+void ReadMatrices(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
 			matrixA[y][x] = ReadFromEditBox(_hwnd, matrixAID[y][x]);
 			matrixB[y][x] = ReadFromEditBox(_hwnd, matrixBID[y][x]);
+			matrixR[y][x] = ReadFromEditBox(_hwnd, matrixRID[y][x]);
+		}
+	}
+}
 
-			resultantMat[y][x] = matrixA[y][x] + matrixB[y][x];
+void WriteMatrices(HWND _hwnd) {
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			WriteToEditBox(_hwnd, matrixAID[y][x], matrixA[y][x]);
+			WriteToEditBox(_hwnd, matrixBID[y][x], matrixB[y][x]);
+			WriteToEditBox(_hwnd, matrixRID[y][x], matrixR[y][x]);
+		}
+	}
+}
 
-			WriteToEditBox(_hwnd, matrixRID[y][x], resultantMat[y][x]);
+void ClearMatrices(HWND _hwnd)
+{
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			matrixA[y][x] = NULL;
+			matrixB[y][x] = NULL;
+			matrixR[y][x] = NULL;
+
+			WriteToEditBox(_hwnd, matrixAID[y][x], NULL);
+			WriteToEditBox(_hwnd, matrixBID[y][x], NULL);
+			WriteToEditBox(_hwnd, matrixRID[y][x], NULL);
+		}
+	}
+}
+
+void AddMatrix(HWND _hwnd)
+{
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			ReadMatrices(_hwnd);
+
+			matrixR[y][x] = matrixA[y][x] + matrixB[y][x];
+
+			WriteMatrices(_hwnd);
 		}
 	}
 }
@@ -452,10 +496,12 @@ void SetToIdentity(HWND _hwnd, bool isA)
 {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
+			ReadMatrices(_hwnd);
+
 			if (y == x) (isA ? matrixA : matrixB)[y][x] = 1;
 			else (isA ? matrixA : matrixB)[y][x] = 0;
 
-			WriteToEditBox(_hwnd, (isA ? matrixAID : matrixBID)[y][x], (isA ? matrixA : matrixB)[y][x]);
+			WriteMatrices(_hwnd);
 		}
 	}
 }

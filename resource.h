@@ -14,6 +14,8 @@
 #define IDOK8                           12
 #define IDOK10                          13
 #define IDOK11                          14
+#define CLEAR                           15
+#define CLEARALL                        15
 #define IDD_DialogMatrix                101
 #define IDD_Gaussian                    102
 #define IDD_DialogGaussian              102
