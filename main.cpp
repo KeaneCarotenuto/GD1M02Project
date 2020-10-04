@@ -665,15 +665,15 @@ float detFunc(float mat[4][4], float n) {
 		
 	for (int i = 0; i < n; i++) {
 		int tempY = 0;
-		for (int y = 1; y < n; y++) {
+		for (int y = 0; y < n; y++) {
 			int tempX = 0;
 			for (int x = 0; x < n; x++) {
-				if (x == i) continue;
+				if (x == i || y == 0) continue;
 
 				tempMat[tempY][tempX] = mat[y][x];
 				tempX++;
 			}
-			tempY++;
+			if (y != 0) tempY++;
 		}
 		det = det + ((i % 2 == 0 ? 1 : -1) * mat[0][i] * detFunc(tempMat, n - 1));
 	}
