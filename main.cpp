@@ -32,10 +32,12 @@ void ClearMatrices(HWND _hwnd);
 
 void AddMatrix(HWND _hwnd);
 void SubtractMatrix(HWND _hwnd);
+void MultiplyMatrix(HWND _hwnd, bool dirAB);
 
 void SetToIdentity(HWND _hwnd, bool isA);
 void MultiplyBy(HWND _hwnd, bool isA);
 void Transpose(HWND _hwnd, bool isA);
+
 
 float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
@@ -173,17 +175,6 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 	{
 		switch (LOWORD(_wparam))
 		{
-		case IDC_EDIT_A11:
-		{
-			matrixA[0][0] = ReadFromEditBox(_hwnd, IDC_EDIT_A11);
-			break;
-		}
-
-		case IDC_EDIT_B11:
-		{
-			matrixB[0][0] = ReadFromEditBox(_hwnd, IDC_EDIT_B11);
-			break;
-		}
 
 		case IDOK4:
 		{
@@ -230,6 +221,17 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDCANCEL:
 		{
 			SubtractMatrix(_hwnd);
+			break;
+		}
+
+		case IDOK2:
+		{
+			MultiplyMatrix(_hwnd, true);
+			break;
+		}
+		case IDOK5:
+		{
+			MultiplyMatrix(_hwnd, false);
 			break;
 		}
 
@@ -540,6 +542,21 @@ void SubtractMatrix(HWND _hwnd)
 
 			matrixR[y][x] = matrixA[y][x] - matrixB[y][x];
 
+		}
+	}
+	WriteMatrices(_hwnd);
+}
+
+void MultiplyMatrix(HWND _hwnd, bool dirAB) 
+{
+	ReadMatrices(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			float temp = 0;
+			for (int w = 0; w < 4; w++){
+				temp += (dirAB ? matrixA[y][w] * matrixB[w][x] : matrixB[y][w] * matrixA[w][x]);
+			}
+			matrixR[y][x] = temp;
 		}
 	}
 	WriteMatrices(_hwnd);
