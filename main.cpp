@@ -17,6 +17,8 @@
 
 #include <windows.h>   // Include all the windows headers.
 #include <windowsx.h>  // Include useful macros.
+#include <string.h>  // Include useful macros.
+#include<math.h>
 
 #include "utils.h"
 #include "resource.h"
@@ -37,7 +39,8 @@ void MultiplyMatrix(HWND _hwnd, bool dirAB);
 void SetToIdentity(HWND _hwnd, bool isA);
 void MultiplyBy(HWND _hwnd, bool isA);
 void Transpose(HWND _hwnd, bool isA);
-
+void Determinant(HWND _hwnd, bool isA);
+float detFunc(float mat[4][4], float n);
 
 float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
@@ -209,6 +212,17 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDOK11:
 		{
 			Transpose(_hwnd, false);
+			break;
+		}
+
+		case IDOK3:
+		{
+			Determinant(_hwnd, true);
+			break;
+		}
+		case IDOK7:
+		{
+			Determinant(_hwnd, false);
 			break;
 		}
 
@@ -485,6 +499,9 @@ int WINAPI WinMain(HINSTANCE _hInstance,
 	return (static_cast<int>(msg.wParam));
 }
 
+/// <summary>
+/// Reads all of the imputs in the window and assigns them to the matrices
+/// </summary>
 void ReadMatrices(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
@@ -495,6 +512,9 @@ void ReadMatrices(HWND _hwnd) {
 	}
 }
 
+/// <summary>
+/// Writes from the matrices to the window
+/// </summary>
 void WriteMatrices(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
@@ -505,6 +525,9 @@ void WriteMatrices(HWND _hwnd) {
 	}
 }
 
+/// <summary>
+/// Clears all Matrix input boxes
+/// </summary>
 void ClearMatrices(HWND _hwnd)
 {
 	for (int y = 0; y < 4; y++) {
@@ -521,6 +544,9 @@ void ClearMatrices(HWND _hwnd)
 	}
 }
 
+/// <summary>
+/// Adds Both matrices
+/// </summary>
 void AddMatrix(HWND _hwnd)
 {
 	ReadMatrices(_hwnd);
@@ -534,6 +560,9 @@ void AddMatrix(HWND _hwnd)
 	WriteMatrices(_hwnd);
 }
 
+/// <summary>
+/// Subtracts matricies B from A
+/// </summary>
 void SubtractMatrix(HWND _hwnd)
 {
 	ReadMatrices(_hwnd);
@@ -547,6 +576,9 @@ void SubtractMatrix(HWND _hwnd)
 	WriteMatrices(_hwnd);
 }
 
+/// <summary>
+/// Multiplies A * B if true, or B * A if false
+/// </summary>
 void MultiplyMatrix(HWND _hwnd, bool dirAB) 
 {
 	ReadMatrices(_hwnd);
@@ -562,6 +594,9 @@ void MultiplyMatrix(HWND _hwnd, bool dirAB)
 	WriteMatrices(_hwnd);
 }
 
+/// <summary>
+/// If true, Sets A to identity, otherwise sets B to identity
+/// </summary>
 void SetToIdentity(HWND _hwnd, bool isA)
 {
 	ReadMatrices(_hwnd);
@@ -576,6 +611,9 @@ void SetToIdentity(HWND _hwnd, bool isA)
 	WriteMatrices(_hwnd);
 }
 
+/// <summary>
+/// Scales Either A (if true) or B (if false) by amount
+/// </summary>
 void MultiplyBy(HWND _hwnd, bool isA)
 {
 	ReadMatrices(_hwnd);
@@ -589,6 +627,9 @@ void MultiplyBy(HWND _hwnd, bool isA)
 	WriteMatrices(_hwnd);
 }
 
+/// <summary>
+/// Transposes Either A (if true) or B
+/// </summary>
 void Transpose(HWND _hwnd, bool isA)
 {
 	ReadMatrices(_hwnd);
@@ -601,4 +642,40 @@ void Transpose(HWND _hwnd, bool isA)
 		}
 	}
 	WriteMatrices(_hwnd);
+}
+
+/// <summary>
+/// Calls the Real Determinant function with matrix A (if true) or B (if false)
+/// </summary>
+void Determinant(HWND _hwnd, bool isA)
+{
+	ReadMatrices(_hwnd);
+	WriteToEditBox(_hwnd, (isA ? IDC_EDIT_DetA : IDC_EDIT_DetB), detFunc((isA ? matrixA : matrixB), 4));
+	WriteMatrices(_hwnd);
+}
+
+/// <summary>
+/// Calculates Determinant of A (if true) or B
+/// </summary>
+float detFunc(float mat[4][4], float n) {
+	float det = 0;
+	float tempMat[4][4];
+
+	if (n == 2)return ((mat[0][0] * mat[1][1]) - (mat[0][1] * mat[1][0]));
+		
+	for (int i = 0; i < n; i++) {
+		int tempY = 0;
+		for (int y = 1; y < n; y++) {
+			int tempX = 0;
+			for (int x = 0; x < n; x++) {
+				if (x == i) continue;
+
+				tempMat[tempY][tempX] = mat[y][x];
+				tempX++;
+			}
+			tempY++;
+		}
+		det = det + ((i % 2 == 0 ? 1 : -1) * mat[0][i] * detFunc(tempMat, n - 1));
+	}
+	return det;
 }
