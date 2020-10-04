@@ -692,6 +692,9 @@ float detFunc(float mat[4][4], float n) {
 	return det;
 }
 
+/// <summary>
+/// Returns the Inverse of A (if true) or B (if false)
+/// </summary>
 void Inverse(HWND _hwnd, bool isA) {
 	ReadMatrices(_hwnd);
 
