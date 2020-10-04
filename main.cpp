@@ -41,6 +41,7 @@ void MultiplyBy(HWND _hwnd, bool isA);
 void Transpose(HWND _hwnd, bool isA);
 void Determinant(HWND _hwnd, bool isA);
 float detFunc(float mat[4][4], float n);
+void Inverse(HWND _hwnd, bool isA);
 
 float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
@@ -223,6 +224,17 @@ BOOL CALLBACK MatrixDlgProc(HWND _hwnd,
 		case IDOK7:
 		{
 			Determinant(_hwnd, false);
+			break;
+		}
+
+		case IDCANCEL2:
+		{
+			Inverse(_hwnd, true);
+			break;
+		}
+		case IDCANCEL3:
+		{
+			Inverse(_hwnd, false);
 			break;
 		}
 
@@ -679,3 +691,67 @@ float detFunc(float mat[4][4], float n) {
 	}
 	return det;
 }
+
+void Inverse(HWND _hwnd, bool isA) {
+	ReadMatrices(_hwnd);
+
+	float det = detFunc((isA ? matrixA : matrixB), 4);
+
+	float toWriteMatrix[4][4];
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+
+			float tempMat[4][4];
+
+			int r = 0;
+			for (int ty = 0; ty < 4; ty++) {
+				int c = 0;
+				for (int tx = 0; tx < 4; tx++) {
+					if (ty == y || tx == x) continue;
+					tempMat[r][c] = (isA ? matrixA : matrixB)[ty][tx];
+					c++;
+				}
+				if (ty != y) {
+					r++;
+				}
+			}
+
+			toWriteMatrix[y][x] = detFunc(tempMat, 3);
+
+		}
+	}
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			(isA ? matrixA : matrixB)[y][x] = (y % 2 == 0 ? 1 : -1) * (x % 2 == 0 ? 1 : -1) * toWriteMatrix[y][x];
+		}
+	}
+
+	WriteMatrices(_hwnd);
+	Transpose(_hwnd, isA);
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+
+			(isA ? matrixA : matrixB)[y][x] *= 1/det;
+
+		}
+	}
+
+	WriteMatrices(_hwnd);
+}
+
+
+
+
+
+/*std::wstringstream wss;
+wss << matrixA[ty][tx];
+
+int msgboxID = MessageBox(
+	NULL,
+	wss.str().c_str(),
+	(LPCWSTR)L"Account Details",
+	MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
+);*/
