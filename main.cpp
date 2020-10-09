@@ -18,7 +18,7 @@
 #include <windows.h>   // Include all the windows headers.
 #include <windowsx.h>  // Include useful macros.
 #include <string.h>  // Include useful macros.
-#include<math.h>
+#include <math.h>
 
 #include "utils.h"
 #include "resource.h"
