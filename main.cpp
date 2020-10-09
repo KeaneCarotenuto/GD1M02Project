@@ -8,8 +8,8 @@
 //
 // File Name	: 
 // Description	: 
-// Author		: Your Name
-// Mail			: your.name@mediadesign.school.nz
+// Author		: Keane Carotenuto & Jake Laird
+// Mail			: keane.carotenuto@mds.ac.nz & jake.laird@mds.ac.nz
 //
 
 
@@ -512,7 +512,7 @@ int WINAPI WinMain(HINSTANCE _hInstance,
 }
 
 /// <summary>
-/// Reads all of the imputs in the window and assigns them to the matrices
+/// Reads all of the imputs in the window and assigns them to the matrices - Keane
 /// </summary>
 void ReadMatrices(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
@@ -525,7 +525,7 @@ void ReadMatrices(HWND _hwnd) {
 }
 
 /// <summary>
-/// Writes from the matrices to the window
+/// Writes from the matrices to the window - Keane
 /// </summary>
 void WriteMatrices(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
@@ -538,7 +538,7 @@ void WriteMatrices(HWND _hwnd) {
 }
 
 /// <summary>
-/// Clears all Matrix input boxes
+/// Clears all Matrix input boxes - Keane
 /// </summary>
 void ClearMatrices(HWND _hwnd)
 {
@@ -557,7 +557,7 @@ void ClearMatrices(HWND _hwnd)
 }
 
 /// <summary>
-/// Adds Both matrices
+/// Adds Both matrices - Keane
 /// </summary>
 void AddMatrix(HWND _hwnd)
 {
@@ -573,7 +573,7 @@ void AddMatrix(HWND _hwnd)
 }
 
 /// <summary>
-/// Subtracts matricies B from A
+/// Subtracts matricies B from A - Keane
 /// </summary>
 void SubtractMatrix(HWND _hwnd)
 {
@@ -589,7 +589,7 @@ void SubtractMatrix(HWND _hwnd)
 }
 
 /// <summary>
-/// Multiplies A * B if true, or B * A if false
+/// Multiplies A * B if true, or B * A if false - Keane
 /// </summary>
 void MultiplyMatrix(HWND _hwnd, bool dirAB) 
 {
@@ -607,7 +607,7 @@ void MultiplyMatrix(HWND _hwnd, bool dirAB)
 }
 
 /// <summary>
-/// If true, Sets A to identity, otherwise sets B to identity
+/// If true, Sets A to identity, otherwise sets B to identity - Jake
 /// </summary>
 void SetToIdentity(HWND _hwnd, bool isA)
 {
@@ -624,7 +624,7 @@ void SetToIdentity(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Scales Either A (if true) or B (if false) by amount
+/// Scales Either A (if true) or B (if false) by amount - Keane
 /// </summary>
 void MultiplyBy(HWND _hwnd, bool isA)
 {
@@ -640,7 +640,7 @@ void MultiplyBy(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Transposes Either A (if true) or B
+/// Transposes Either A (if true) or B - Keane
 /// </summary>
 void Transpose(HWND _hwnd, bool isA)
 {
@@ -657,7 +657,7 @@ void Transpose(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Calls the Real Determinant function with matrix A (if true) or B (if false)
+/// Calls the Real Determinant function with matrix A (if true) or B (if false) - Keane
 /// </summary>
 void Determinant(HWND _hwnd, bool isA)
 {
@@ -667,7 +667,7 @@ void Determinant(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Calculates Determinant of A (if true) or B
+/// Calculates Determinant of A (if true) or B - Keane
 /// </summary>
 float detFunc(float mat[4][4], float n) {
 	float det = 0;
@@ -693,7 +693,7 @@ float detFunc(float mat[4][4], float n) {
 }
 
 /// <summary>
-/// Returns the Inverse of A (if true) or B (if false)
+/// Returns the Inverse of A (if true) or B (if false) - Keane
 /// </summary>
 void Inverse(HWND _hwnd, bool isA) {
 	ReadMatrices(_hwnd);
