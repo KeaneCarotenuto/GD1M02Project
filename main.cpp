@@ -18,7 +18,7 @@
 #include <windows.h>   // Include all the windows headers.
 #include <windowsx.h>  // Include useful macros.
 #include <string.h>  // Include useful macros.
-#include<math.h>
+#include <math.h>
 
 #include "utils.h"
 #include "resource.h"
@@ -28,6 +28,7 @@
 HMENU g_hMenu;
 HWND g_hDlgMatrix, g_hDlgTransformation, g_hDlgGaussian, g_hDlgQuaternion, g_hDlgSLERP;
 
+//Matrix Calculator Function Declarations
 void ReadMatrices(HWND _hwnd);
 void WriteMatrices(HWND _hwnd);
 void ClearMatrices(HWND _hwnd);
@@ -42,6 +43,14 @@ void Transpose(HWND _hwnd, bool isA);
 void Determinant(HWND _hwnd, bool isA);
 float detFunc(float mat[4][4], float n);
 void Inverse(HWND _hwnd, bool isA);
+
+//Quaternion Calculator Function Definitions
+
+//Gaussian Eliminator Function Definitions
+
+//SLERP Calculator Function Definitions
+
+//Transformation Matrices Function Definitions
 
 float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
