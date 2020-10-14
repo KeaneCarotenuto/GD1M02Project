@@ -28,7 +28,7 @@
 HMENU g_hMenu;
 HWND g_hDlgMatrix, g_hDlgTransformation, g_hDlgGaussian, g_hDlgQuaternion, g_hDlgSLERP;
 
-//Matrix Calculator Function Declarations
+//Matrix Calculator Function Declarations And Variable Initialisations
 void ReadMatrices(HWND _hwnd);
 void WriteMatrices(HWND _hwnd);
 void ClearMatrices(HWND _hwnd);
@@ -43,14 +43,6 @@ void Transpose(HWND _hwnd, bool isA);
 void Determinant(HWND _hwnd, bool isA);
 float detFunc(float mat[4][4], float n);
 void Inverse(HWND _hwnd, bool isA);
-
-//Quaternion Calculator Function Definitions
-
-//Gaussian Eliminator Function Definitions
-
-//SLERP Calculator Function Definitions
-
-//Transformation Matrices Function Definitions
 
 float matrixA[4][4], matrixB[4][4], matrixR[4][4];
 int matrixAID[4][4] = {
@@ -72,6 +64,36 @@ int matrixRID[4][4] = {
 	{IDC_EDIT_R41,IDC_EDIT_R42,IDC_EDIT_R43,IDC_EDIT_R44}
 };
 
+//Quaternion Calculator Function Declarations And Variable Initialisations
+/*//void ReadQuaternions(HWND _hwnd);
+//void WriteQuaternions(HWND _hwnd);
+
+void AddQuaternions(HWND _hwnd);
+void SubtractQuaternions(HWND _hwnd, bool isA);
+void MultiplyQuaternions(HWND _hwnd, bool isA);
+
+void MagnitudeQuaternions(HWND _hwnd, bool isA);
+void ConjugateQuaternions(HWND _hwnd, bool isA);
+void DotProductQuaternions(HWND _hwnd);
+void InverseQuaternions(HWND _hwnd, bool isA);
+void ScaleQuaternions(HWND _hwnd, bool isA);
+
+float quaternionA[4], quaternionB[4], quaternionR[4];
+int quaternionAID[4] = {
+	{, , ,}
+};
+int quaternionBID[4] = {
+	{, , ,}
+};
+int quaternionRID[4] = {
+	{, , ,}
+};*/
+
+//Gaussian Eliminator Function Declarations And Variable Initialisations
+
+//SLERP Calculator Function Declarations And Variable Initialisations
+
+//Transformation Matrices Function Declarations And Variable Initialisations
 
 void GameLoop()
 {
@@ -754,9 +776,162 @@ void Inverse(HWND _hwnd, bool isA) {
 	WriteMatrices(_hwnd);
 }
 
+/*//Functions specifically for the Quaternion calculator - Having difficulty accessing the buttons used by the Quaternion calc window
 
+/// <summary>
+/// Reads all of the imputs in the window and assigns them to the quaternions
+/// </summary>
+void ReadQuaternions(HWND _hwnd) {
+	for (int y = 0; y < 4; y++) {
+			quaternionA[y] = ReadFromEditBox(_hwnd, quaternionAID[y]);
+			quaternionB[y] = ReadFromEditBox(_hwnd, quaternionBID[y]);
+			quaternionR[y] = ReadFromEditBox(_hwnd, quaternionRID[y]);
+	}
+}
 
+/// <summary>
+/// Writes from the quaternions to the window
+/// </summary>
+void WriteQuaternions(HWND _hwnd) {
+	for (int y = 0; y < 4; y++) {
+			WriteToEditBox(_hwnd, quaternionAID[y], quaternionA[y]);
+			WriteToEditBox(_hwnd, quaternionBID[y], quaternionB[y]);
+			WriteToEditBox(_hwnd, quaternionRID[y], quaternionR[y]);
+	}
+}
 
+/// <summary>
+/// Handles the addition of Quaternions. Addition is commutative so this doesn't require an order operator
+/// </summary>
+void AddQuaternions(HWND _hwnd)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		quaternionR[y] = quaternionA[y] + quaternionB[y];
+	}
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// Handles the subtraction of Quaternions. Computes A - B if true or B - A if false
+/// </summary>
+void SubtractQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		quaternionR[y] = (isA ? (quaternionA[y] - quaternionB[y]) : (quaternionB[y] - quaternionA[y]));
+	}
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// Handles the multiplication of Quaternions. Computes A*B if true or B*A if false
+/// </summary>
+void MultiplyQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	int tempMatrix[4][4];
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++)
+		{
+			tempMatrix[y][x] = (isA ? (quaternionA[y] * quaternionB[x]) : (quaternionB[y] * quaternionA[x]));
+		}
+	}
+
+	quaternionR[0] = (tempMatrix[0][3] + tempMatrix[2][1] + tempMatrix[3][0] - tempMatrix[1][2]); //This is the i component of the resultant quaternion
+	quaternionR[1] = (tempMatrix[0][2] + tempMatrix[1][3] + tempMatrix[3][1] - tempMatrix[2][0]); //This is the j component of the resultant quaternion
+	quaternionR[2] = (tempMatrix[1][0] + tempMatrix[2][3] + tempMatrix[3][2] - tempMatrix[0][1]); //This is the k component of the resultant quaternion
+	quaternionR[3] = (tempMatrix[3][3] - tempMatrix[2][2] - tempMatrix[1][1] - tempMatrix[0][0]); //This is the real component of the resultant quaternion
+
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// Handles the dot product calculation of Quaternions
+/// </summary>
+void DotProductQuaternions(HWND _hwnd)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		quaternionR[y] = quaternionA[y] * quaternionB[y];
+	}
+	//WriteQuaternions(_hwnd);
+}
+
+/// <summary>
+/// Handles the conjugation of Quaternions. Computes A* if true or B* if false
+/// </summary>
+void ConjugateQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		if (y != 3)
+		{
+			quaternionR[y] = (isA ? quaternionA : quaternionB)[y] * -1;
+		}
+		else
+		{
+			quaternionR[y] = (isA ? quaternionA : quaternionB)[y];
+		}
+	}
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// Handles the magnitude calculation of Quaternions. Computes |A| if true or |B| if false
+/// </summary>
+void MagnitudeQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	quaternionR[3] = 0;
+
+	for (int y = 0; y < 4; y++) {
+		if (y != 3)
+		{
+			quaternionR[y] = 0;
+		}
+		
+		quaternionR[3] += pow((isA ? quaternionA : quaternionB)[y], 2);
+	}
+
+	quaternionR[3] = sqrt(quaternionR[3]);
+
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// Handles the inverse calculation of Quaternions. Computes A inverse if true or B inverse if false
+/// </summary>
+void InverseQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+			quaternionR[y] = 0;
+	}
+
+	quaternionR[3] = ConjugateQuaternions(_hwnd, isA)/(pow(MagnitudeQuaternions(_hwnd, isA)), 2);
+
+	//WriteQuaternions(_hwnd);
+
+}
+
+/// <summary>
+/// 
+/// </summary>
+void ScaleQuaternions(HWND _hwnd, bool isA)
+{
+	//ReadQuaternions(_hwnd);
+	for (int y = 0; y < 4; y++) {
+		(isA ? quaternionA : quaternionB)[y] *= ReadFromEditBox(_hwnd, ); // Need to work out which box this pulls from but it should work once that's found
+	}
+	//WriteQuaternions(_hwnd);
+}*/
 
 /*std::wstringstream wss;
 wss << matrixA[ty][tx];
