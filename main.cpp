@@ -872,7 +872,7 @@ void Inverse(HWND _hwnd, bool isA) {
 //Functions specifically for the Quaternion calculator - Having difficulty accessing the buttons used by the Quaternion calc window
 
 /// <summary>
-/// Reads all of the imputs in the window and assigns them to the quaternions
+/// Reads all of the imputs in the window and assigns them to the quaternions - Jake
 /// </summary>
 void ReadQuaternions(HWND _hwnd) {
 	for (int y = 0; y < 4; y++) {
@@ -894,7 +894,7 @@ void WriteQuaternions(HWND _hwnd) {
 }
 
 /// <summary>
-/// Handles the addition of Quaternions. Addition is commutative so this doesn't require an order operator
+/// Handles the addition of Quaternions. Addition is commutative so this doesn't require an order operator - Jake
 /// </summary>
 void AddQuaternions(HWND _hwnd)
 {
@@ -906,7 +906,7 @@ void AddQuaternions(HWND _hwnd)
 }
 
 /// <summary>
-/// Handles the subtraction of Quaternions. Computes A - B if true or B - A if false
+/// Handles the subtraction of Quaternions. Computes A - B if true or B - A if false - Jake
 /// </summary>
 void SubtractQuaternions(HWND _hwnd, bool isA)
 {
@@ -918,7 +918,7 @@ void SubtractQuaternions(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Handles the multiplication of Quaternions. Computes A*B if true or B*A if false
+/// Handles the multiplication of Quaternions. Computes A*B if true or B*A if false - Jake
 /// </summary>
 void MultiplyQuaternions(HWND _hwnd, bool isA)
 {
@@ -941,7 +941,7 @@ void MultiplyQuaternions(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Handles the dot product calculation of Quaternions
+/// Handles the dot product calculation of Quaternions - Jake
 /// </summary>
 void DotProductQuaternions(HWND _hwnd)
 {
@@ -963,7 +963,7 @@ void DotProductQuaternions(HWND _hwnd)
 }
 
 /// <summary>
-/// Handles the conjugation of Quaternions. Computes A* if true or B* if false
+/// Handles the conjugation of Quaternions. Computes A* if true or B* if false - Jake
 /// </summary>
 void ConjugateQuaternions(HWND _hwnd, bool isA)
 {
@@ -982,7 +982,7 @@ void ConjugateQuaternions(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Handles the magnitude calculation of Quaternions. Computes |A| if true or |B| if false
+/// Handles the magnitude calculation of Quaternions. Computes |A| if true or |B| if false - Jake
 /// </summary>
 void MagnitudeQuaternions(HWND _hwnd, bool isA)
 {
@@ -1004,7 +1004,7 @@ void MagnitudeQuaternions(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Handles the inverse calculation of Quaternions. Computes A inverse if true or B inverse if false
+/// Handles the inverse calculation of Quaternions. Computes A inverse if true or B inverse if false - Jake
 /// </summary>
 void InverseQuaternions(HWND _hwnd, bool isA)
 {
@@ -1036,7 +1036,7 @@ void InverseQuaternions(HWND _hwnd, bool isA)
 }
 
 /// <summary>
-/// Handles the scaling of Quaternions. Scales A if true or B if false
+/// Handles the scaling of Quaternions. Scales A if true or B if false - Jake
 /// </summary>
 void ScaleQuaternions(HWND _hwnd, bool isA)
 {
