@@ -99,6 +99,21 @@ int quaternionRID[4] = {
 };
 
 //Gaussian Eliminator Function Declarations And Variable Initialisations
+void ReadGaussian(HWND _hwnd);
+void WriteGaussian(HWND _hwnd);
+
+void MultiplyGaussianRow(HWND _hwnd);
+void SwapGaussianRow(HWND _hwnd);
+void AddMultipliedRow(HWND _hwnd);
+
+void CheckEchelonForms(HWND _hwnd);
+
+float gaussianMatrix[3][4];
+int gaussianMatrixID[3][4] = {
+	{IDC_EDIT1, IDC_EDIT2, IDC_EDIT3, IDC_EDIT4},
+	{IDC_EDIT5, IDC_EDIT6, IDC_EDIT7, IDC_EDIT8},
+	{IDC_EDIT9, IDC_EDIT10, IDC_EDIT11, IDC_EDIT12}
+};
 
 //SLERP Calculator Function Declarations And Variable Initialisations
 
@@ -375,6 +390,23 @@ BOOL CALLBACK GaussianDlgProc(HWND _hwnd,
 	{
 		switch (LOWORD(_wparam))
 		{
+		case IDC_BUTTON1:
+		{
+			MultiplyGaussianRow(_hwnd);
+			break;
+		}
+
+		case IDC_BUTTON2:
+		{
+			SwapGaussianRow(_hwnd);
+			break;
+		}
+
+		case IDC_BUTTON3:
+		{
+			AddMultipliedRow(_hwnd);
+			break;
+		}
 
 		default:
 			break;
@@ -869,7 +901,7 @@ void Inverse(HWND _hwnd, bool isA) {
 	WriteMatrices(_hwnd);
 }
 
-//Functions specifically for the Quaternion calculator - Having difficulty accessing the buttons used by the Quaternion calc window
+//Functions specifically for the Quaternion calculator
 
 /// <summary>
 /// Reads all of the imputs in the window and assigns them to the quaternions - Jake
@@ -1045,6 +1077,136 @@ void ScaleQuaternions(HWND _hwnd, bool isA)
 		quaternionR[y] = (isA ? quaternionA : quaternionB)[y] * ReadFromEditBox(_hwnd, IDC_EDIT9);
 	}
 	WriteQuaternions(_hwnd);
+}
+
+//Functions specifically for the Gaussian Eliminator
+
+/// <summary>
+/// Reads all of the imputs in the window and assigns them as a gaussian matrix
+/// </summary>
+void ReadGaussian(HWND _hwnd) {
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 4; x++) {
+			gaussianMatrix[y][x] = ReadFromEditBox(_hwnd, gaussianMatrixID[y][x]);
+		}
+	}
+}
+
+/// <summary>
+/// Writes from the gaussian matrix to the window
+/// </summary>
+void WriteGaussian(HWND _hwnd) {
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 4; x++) {
+			WriteToEditBox(_hwnd, gaussianMatrixID[y][x], gaussianMatrix[y][x]);
+		}
+	}
+
+	CheckEchelonForms(_hwnd);
+}
+
+/// <summary>
+/// Multiplies a specified row in the gaussian matrix by a specified amount. It assumes the user is unfamiliar with the fact that arrays start at 0 in c++, hence the ReadFromEditBox() - 1 operation - Jake
+/// </summary>
+void MultiplyGaussianRow(HWND _hwnd) {
+	
+	ReadGaussian(_hwnd);
+	
+	int rowToMultiply = ReadFromEditBox(_hwnd, IDC_EDIT13) - 1;
+	float multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT14);
+
+	for (int x = 0; x < 4; x++) {
+		gaussianMatrix[rowToMultiply][x] *= multiplyingBy;
+	}
+
+	WriteGaussian(_hwnd);
+}
+
+/// <summary>
+/// Swaps a first specified row with a second specified row - Jake
+/// </summary>
+void SwapGaussianRow(HWND _hwnd) {
+
+	ReadGaussian(_hwnd);
+
+	int rowSwapProvider = ReadFromEditBox(_hwnd, IDC_EDIT16) - 1;
+	int rowSwapRecipient = ReadFromEditBox(_hwnd, IDC_EDIT17) - 1;
+	float tempEquation[4] = { 0 };
+
+	for (int x = 0; x < 4; x++) {
+		tempEquation[x] = gaussianMatrix[rowSwapRecipient - 1][x];
+		gaussianMatrix[rowSwapRecipient][x] = gaussianMatrix[rowSwapProvider - 1][x];
+		gaussianMatrix[rowSwapProvider][x] = tempEquation[x];
+	}
+
+	WriteGaussian(_hwnd);
+}
+
+/// <summary>
+/// First it multiplies a specified row by a specified number, then it adds the result of that operation to another specified row - Jake
+/// </summary>
+void AddMultipliedRow(HWND _hwnd) {
+
+	ReadGaussian(_hwnd);
+
+	float multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT19);
+	int rowToMultiply = ReadFromEditBox(_hwnd, IDC_EDIT20) - 1;
+	int rowToAddTo = ReadFromEditBox(_hwnd, IDC_EDIT22) - 1;
+	
+	float tempEquation[4] = { 0 };
+	
+	for (int x = 0; x < 4; x++) {
+		tempEquation[x] = gaussianMatrix[rowToMultiply][x] * multiplyingBy; // Storing in a temporary variable so as not to affect the actual row in the gaussian matrix
+		gaussianMatrix[rowToAddTo][x] += tempEquation[x];
+	}
+
+	WriteGaussian(_hwnd);
+}
+
+/// <summary>
+/// Checks to see if the gaussian matrix has been successfully converted into either Row Echelon Form or Reduced Row Echelon Form - Jake
+/// </summary>
+void CheckEchelonForms(HWND _hwnd)
+{
+	ReadGaussian(_hwnd);
+
+	int matchConditionsCount = 0;
+
+	for (int y = 0; y < 3; y++){
+		for (int x = 0; x < 3; x++) {
+
+			if (y == x)
+			{
+				if (gaussianMatrix[y][x] == 1)
+				{
+					matchConditionsCount++;
+				}
+			}
+			else if (x < y)
+			{
+				if (gaussianMatrix[y][x] == 0 && gaussianMatrix[0][0] == 1 && gaussianMatrix[1][1] == 1 && gaussianMatrix[2][2] == 1)
+				{
+					matchConditionsCount++;
+				}
+			}
+			else if (x > y)
+			{
+				if (gaussianMatrix[y][x] == 0 && gaussianMatrix[x][y] == 0)
+				{
+					matchConditionsCount++;
+				}
+			}
+		}
+	}
+
+	if (matchConditionsCount == 9)
+	{
+		MessageBox(_hwnd, L"You've successfully eliminated until you got to the Reduced Row Echelon form! :D", L"Congratulations!", MB_OK);
+	}
+	else if (matchConditionsCount == 6)
+	{
+		MessageBox(_hwnd, L"You've successfully eliminated until you got to the Row Echelon form! :)", L"Well done!", MB_OK);
+	}
 }
 
 /*std::wstringstream wss;
