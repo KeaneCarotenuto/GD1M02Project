@@ -106,9 +106,11 @@ void MultiplyGaussianRow(HWND _hwnd);
 void SwapGaussianRow(HWND _hwnd);
 void AddMultipliedRow(HWND _hwnd);
 
+void SolveReducedRow(HWND _hwnd);
+void SortGaussian(const HWND& _hwnd);
 void CheckEchelonForms(HWND _hwnd);
 
-float gaussianMatrix[3][4];
+long double gaussianMatrix[3][4];
 int gaussianMatrixID[3][4] = {
 	{IDC_EDIT1, IDC_EDIT2, IDC_EDIT3, IDC_EDIT4},
 	{IDC_EDIT5, IDC_EDIT6, IDC_EDIT7, IDC_EDIT8},
@@ -405,6 +407,13 @@ BOOL CALLBACK GaussianDlgProc(HWND _hwnd,
 		case IDC_BUTTON3:
 		{
 			AddMultipliedRow(_hwnd);
+			break;
+		}
+
+		case IDC_SOLVE:
+		{
+			MessageBox(_hwnd, L"Solving for Row  Echelon\n(Might not work too well with weird matricies...)", L"Solving:", MB_OK);
+			SolveReducedRow(_hwnd);
 			break;
 		}
 
@@ -1113,7 +1122,7 @@ void MultiplyGaussianRow(HWND _hwnd) {
 	ReadGaussian(_hwnd);
 	
 	int rowToMultiply = ReadFromEditBox(_hwnd, IDC_EDIT13) - 1;
-	float multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT14);
+	long double multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT14);
 
 	for (int x = 0; x < 4; x++) {
 		gaussianMatrix[rowToMultiply][x] *= multiplyingBy;
@@ -1131,11 +1140,11 @@ void SwapGaussianRow(HWND _hwnd) {
 
 	int rowSwapProvider = ReadFromEditBox(_hwnd, IDC_EDIT16) - 1;
 	int rowSwapRecipient = ReadFromEditBox(_hwnd, IDC_EDIT17) - 1;
-	float tempEquation[4] = { 0 };
+	long double tempEquation[4] = { 0 };
 
 	for (int x = 0; x < 4; x++) {
-		tempEquation[x] = gaussianMatrix[rowSwapRecipient - 1][x];
-		gaussianMatrix[rowSwapRecipient][x] = gaussianMatrix[rowSwapProvider - 1][x];
+		tempEquation[x] = gaussianMatrix[rowSwapRecipient][x];
+		gaussianMatrix[rowSwapRecipient][x] = gaussianMatrix[rowSwapProvider][x];
 		gaussianMatrix[rowSwapProvider][x] = tempEquation[x];
 	}
 
@@ -1149,15 +1158,130 @@ void AddMultipliedRow(HWND _hwnd) {
 
 	ReadGaussian(_hwnd);
 
-	float multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT19);
+	long double multiplyingBy = ReadFromEditBox(_hwnd, IDC_EDIT19);
 	int rowToMultiply = ReadFromEditBox(_hwnd, IDC_EDIT20) - 1;
 	int rowToAddTo = ReadFromEditBox(_hwnd, IDC_EDIT22) - 1;
 	
-	float tempEquation[4] = { 0 };
+	long double tempEquation[4] = { 0 };
 	
 	for (int x = 0; x < 4; x++) {
 		tempEquation[x] = gaussianMatrix[rowToMultiply][x] * multiplyingBy; // Storing in a temporary variable so as not to affect the actual row in the gaussian matrix
 		gaussianMatrix[rowToAddTo][x] += tempEquation[x];
+	}
+
+	WriteGaussian(_hwnd);
+}
+
+void SolveReducedRow(HWND _hwnd)
+{
+
+	SortGaussian(_hwnd);
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"Sorted", L"Pause", MB_OK);
+
+	ReadGaussian(_hwnd);
+
+
+	for (int y = 0; y < 3; y++) {
+		if (gaussianMatrix[y][y] != 0) {
+			long double multi = 1 / gaussianMatrix[y][y];
+			for (int x = 0; x < 4; x++) {
+				gaussianMatrix[y][x] *= multi;
+			}
+		}
+	}
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"Diag to 1", L"Pause", MB_OK);
+
+
+	long double multi1 = -gaussianMatrix[1][0];
+	for (int x = 0; x < 4; x++) {
+		gaussianMatrix[1][x] += multi1 * gaussianMatrix[0][x];
+	}
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"second row started", L"Pause", MB_OK);
+
+	if (gaussianMatrix[1][1] != 0) {
+		long double multi1Final = 1 / gaussianMatrix[1][1];
+		for (int x = 0; x < 4; x++) {
+			gaussianMatrix[1][x] *= multi1Final;
+		}
+	}
+	
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"second row done", L"Pause", MB_OK);
+
+	long double multi2 = -gaussianMatrix[2][0];
+	for (int x = 0; x < 4; x++) {
+		gaussianMatrix[2][x] += multi2 * gaussianMatrix[0][x];
+	}
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"third row started", L"Pause", MB_OK);
+
+	long double multi22 = -gaussianMatrix[2][1];
+	for (int x = 0; x < 4; x++) {
+		gaussianMatrix[2][x] += multi22 * gaussianMatrix[1][x];
+	}
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"third row still going", L"Pause", MB_OK);
+
+	
+	if (gaussianMatrix[2][2] != 0) {
+		long double multi2Final = 1 / gaussianMatrix[2][2];
+		for (int x = 0; x < 4; x++) {
+			gaussianMatrix[2][x] *= multi2Final;
+		}
+	}
+
+	WriteGaussian(_hwnd);
+	MessageBox(_hwnd, L"third row done", L"Pause", MB_OK);
+
+
+
+
+	WriteGaussian(_hwnd);
+}
+
+void SortGaussian(const HWND& _hwnd)
+{
+	ReadGaussian(_hwnd);
+
+	bool sorted = false;
+
+	while (!sorted) {
+
+		int nums[3] = { 0,0,0 };
+
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 4; x++) {
+				if (gaussianMatrix[y][x] != 0) break;
+				nums[y] ++;
+			}
+		}
+
+		if (nums[0] <= nums[1] && nums[1] <= nums[2]) {
+			sorted = true;
+			break;
+		}
+
+		ReadGaussian(_hwnd);
+
+		int rowSwapProvider = rand() % 3;
+		int rowSwapRecipient = rand() % 3;
+		long double tempEquation[4] = { 0 };
+
+		for (int x = 0; x < 4; x++) {
+			tempEquation[x] = gaussianMatrix[rowSwapRecipient][x];
+			gaussianMatrix[rowSwapRecipient][x] = gaussianMatrix[rowSwapProvider][x];
+			gaussianMatrix[rowSwapProvider][x] = tempEquation[x];
+		}
+
+		WriteGaussian(_hwnd);
 	}
 
 	WriteGaussian(_hwnd);
