@@ -61,11 +61,11 @@ float ReadFromEditBox(HWND _hDlg, int _iResourceID)
 	}
 	else
 	{
-		return static_cast<float>(_wtof(_pcValue));
+		return static_cast<double>(_wtof(_pcValue));
 	}
 }
 
-void WriteToEditBox(HWND _hDlg, int _iResourceID, float _fValue)
+void WriteToEditBox(HWND _hDlg, int _iResourceID, double _fValue)
 {
 	std::wstring _strValue = ToWideString(_fValue);
 	SetDlgItemText(_hDlg, _iResourceID, (_fValue == -INFINITY ? L"" : _strValue.c_str()));

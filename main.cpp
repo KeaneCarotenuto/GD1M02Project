@@ -119,6 +119,37 @@ int gaussianMatrixID[3][4] = {
 
 //SLERP Calculator Function Declarations And Variable Initialisations
 
+long double SLERPquaternionA[4];
+long double SLERPquaternionB[4];
+long double SLERPquaternionR[4];
+long double SLERPt;
+
+int SLERPquaternionAID[4] = {
+	{IDC_EDIT1},
+	{IDC_EDIT2},
+	{IDC_EDIT3},
+	{IDC_EDIT4}
+};
+int SLERPquaternionBID[4] = {
+	{IDC_EDIT5},
+	{IDC_EDIT6},
+	{IDC_EDIT7},
+	{IDC_EDIT8}
+};
+int SLERPquaternionRID[4] = {
+	{IDC_EDIT10},
+	{IDC_EDIT11},
+	{IDC_EDIT12},
+	{IDC_EDIT13}
+};
+
+void ReadSlerpQuat(HWND _hwnd);
+void WriteSlerpQuat(HWND _hwnd);
+
+void Slerp(HWND _hwnd);
+
+
+
 //Transformation Matrices Function Declarations And Variable Initialisations
 
 void GameLoop()
@@ -555,6 +586,23 @@ BOOL CALLBACK QuaternionDlgProc(HWND _hwnd,
 	return FALSE;
 }
 
+//void SlerpTest() {
+//	quat q = *new quat();
+//	quat a = *new quat(0.7071, 0, 0, 0.7071);
+//	quat b = *new quat(1, 0, 0, 0);
+//	double t = (double)1 / (double)3;
+//	q = slerp(a, b, t);
+//	std::wstringstream wss;
+//	wss << q.w << ", " << q.x << ", " << q.y << ", " << q.z << "\n";
+//
+//	int msgboxID = MessageBox(
+//		NULL,
+//		wss.str().c_str(),
+//		(LPCWSTR)L"Account Details",
+//		MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
+//	);
+//}
+
 BOOL CALLBACK SLERPDlgProc(HWND _hwnd,
 	UINT _msg,
 	WPARAM _wparam,
@@ -567,6 +615,9 @@ BOOL CALLBACK SLERPDlgProc(HWND _hwnd,
 	{
 		switch (LOWORD(_wparam))
 		{
+		case IDC_BUTTON1:
+			Slerp(_hwnd);
+			break;
 
 		default:
 			break;
@@ -1331,6 +1382,71 @@ void CheckEchelonForms(HWND _hwnd)
 	{
 		MessageBox(_hwnd, L"You've successfully eliminated until you got to the Row Echelon form! :)", L"Well done!", MB_OK);
 	}
+}
+
+/// <summary>
+/// Reads the quaternion values from the program
+/// </summary>
+void ReadSlerpQuat(HWND _hwnd)
+{
+	for (int y = 0; y < 4; y++) {
+		SLERPquaternionA[y] = ReadFromEditBox(_hwnd, SLERPquaternionAID[y]);
+		SLERPquaternionB[y] = ReadFromEditBox(_hwnd, SLERPquaternionBID[y]);
+		SLERPquaternionR[y] = ReadFromEditBox(_hwnd, SLERPquaternionRID[y]);
+		SLERPt = ReadFromEditBox(_hwnd, IDC_EDIT9);
+	}
+}
+
+/// <summary>
+/// Writes Quaternions to the program
+/// </summary>
+void WriteSlerpQuat(HWND _hwnd)
+{
+	for (int y = 0; y < 4; y++) {
+		WriteToEditBox(_hwnd, SLERPquaternionAID[y], SLERPquaternionA[y]);
+		WriteToEditBox(_hwnd, SLERPquaternionBID[y], SLERPquaternionB[y]);
+		WriteToEditBox(_hwnd, SLERPquaternionRID[y], SLERPquaternionR[y]);
+	}
+}
+
+/// <summary>
+/// Calculates the interpolation between two quaternions
+/// </summary>
+void Slerp(HWND _hwnd) {
+	ReadSlerpQuat(_hwnd);
+	double qaMag = sqrt(SLERPquaternionA[0] * SLERPquaternionA[0] +
+						SLERPquaternionA[1] * SLERPquaternionA[1] +
+						SLERPquaternionA[2] * SLERPquaternionA[2] +
+						SLERPquaternionA[3] * SLERPquaternionA[3] );
+	for (int x = 0; x < 4; x++) {
+		SLERPquaternionA[x] *= 1/qaMag;
+	}
+
+	double qbMag = sqrt(SLERPquaternionB[0] * SLERPquaternionB[0] +
+		SLERPquaternionB[1] * SLERPquaternionB[1] +
+		SLERPquaternionB[2] * SLERPquaternionB[2] +
+		SLERPquaternionB[3] * SLERPquaternionB[3]);
+	for (int x = 0; x < 4; x++) {
+		SLERPquaternionB[x] *= 1/qbMag;
+	}
+
+	
+	//Find angle between two quats
+	double angle = acos(SLERPquaternionA[0] * SLERPquaternionB[0] +
+		SLERPquaternionA[1] * SLERPquaternionB[1] +
+		SLERPquaternionA[2] * SLERPquaternionB[2] +
+		SLERPquaternionA[3] * SLERPquaternionB[3]);
+
+	//Calculate what to multiply each quat by
+	double quatAMult = sin((1 - SLERPt) * angle) / sin(angle);
+	double quatBMult = sin(SLERPt * angle) / sin(angle);
+	
+	//calculate Quaternion
+	for (int x = 0; x < 4; x++) {
+		SLERPquaternionR[x] = (SLERPquaternionA[x] * quatAMult + SLERPquaternionB[x] * quatBMult);
+	}
+
+	WriteSlerpQuat(_hwnd);
 }
 
 /*std::wstringstream wss;
