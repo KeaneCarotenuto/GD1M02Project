@@ -142,13 +142,20 @@ int SLERPquaternionRID[4] = {
 	{IDC_EDIT12},
 	{IDC_EDIT13}
 };
+int SLERPMatrixRID[4][4] = {
+	{IDC_EDIT34,IDC_EDIT35,IDC_EDIT36,IDC_EDIT37},
+	{IDC_EDIT38,IDC_EDIT39,IDC_EDIT40,IDC_EDIT41},
+	{IDC_EDIT42,IDC_EDIT43,IDC_EDIT44,IDC_EDIT45},
+	{IDC_EDIT46,IDC_EDIT47,IDC_EDIT48,IDC_EDIT49}
+};
 
 void ReadSlerpQuat(HWND _hwnd);
 void WriteSlerpQuat(HWND _hwnd);
 
 void Slerp(HWND _hwnd);
 
-
+void SlerpNormalise(HWND _hwnd);
+void SlerpMatrix(HWND _hwnd, bool isSlerp, bool isA);
 
 //Transformation Matrices Function Declarations And Variable Initialisations
 
@@ -617,6 +624,18 @@ BOOL CALLBACK SLERPDlgProc(HWND _hwnd,
 		{
 		case IDC_BUTTON1:
 			Slerp(_hwnd);
+			break;
+
+		case IDC_BUTTON2:
+			SlerpMatrix(_hwnd, false, true);
+			break;
+
+		case IDC_BUTTON3:
+			SlerpMatrix(_hwnd, false, false);
+			break;
+
+		case IDC_BUTTON4:
+			SlerpMatrix(_hwnd, true, false);
 			break;
 
 		default:
@@ -1410,32 +1429,53 @@ void WriteSlerpQuat(HWND _hwnd)
 }
 
 /// <summary>
-/// Calculates the interpolation between two quaternions
+/// Normalises both quaternions - Keane
 /// </summary>
-void Slerp(HWND _hwnd) {
+void SlerpNormalise(HWND _hwnd) {
 	ReadSlerpQuat(_hwnd);
+
 	double qaMag = sqrt(SLERPquaternionA[0] * SLERPquaternionA[0] +
 						SLERPquaternionA[1] * SLERPquaternionA[1] +
 						SLERPquaternionA[2] * SLERPquaternionA[2] +
-						SLERPquaternionA[3] * SLERPquaternionA[3] );
+						SLERPquaternionA[3] * SLERPquaternionA[3]);
+
+	if (!qaMag) {
+		qaMag = 1;
+	}
+
 	for (int x = 0; x < 4; x++) {
-		SLERPquaternionA[x] *= 1/qaMag;
+		SLERPquaternionA[x] *= 1 / qaMag;
 	}
 
 	double qbMag = sqrt(SLERPquaternionB[0] * SLERPquaternionB[0] +
-		SLERPquaternionB[1] * SLERPquaternionB[1] +
-		SLERPquaternionB[2] * SLERPquaternionB[2] +
-		SLERPquaternionB[3] * SLERPquaternionB[3]);
-	for (int x = 0; x < 4; x++) {
-		SLERPquaternionB[x] *= 1/qbMag;
+						SLERPquaternionB[1] * SLERPquaternionB[1] +
+						SLERPquaternionB[2] * SLERPquaternionB[2] +
+						SLERPquaternionB[3] * SLERPquaternionB[3]);
+
+	if (!qbMag) {
+		qbMag = 1;
 	}
 
+	for (int x = 0; x < 4; x++) {
+		SLERPquaternionB[x] *= 1 / qbMag;
+	}
+
+	WriteSlerpQuat(_hwnd);
+}
+
+/// <summary>
+/// Calculates the interpolation between two quaternions - Keane
+/// </summary>
+void Slerp(HWND _hwnd) {
+
+	SlerpNormalise(_hwnd);
+	ReadSlerpQuat(_hwnd);
 	
 	//Find angle between two quats
 	double angle = acos(SLERPquaternionA[0] * SLERPquaternionB[0] +
-		SLERPquaternionA[1] * SLERPquaternionB[1] +
-		SLERPquaternionA[2] * SLERPquaternionB[2] +
-		SLERPquaternionA[3] * SLERPquaternionB[3]);
+						SLERPquaternionA[1] * SLERPquaternionB[1] +
+						SLERPquaternionA[2] * SLERPquaternionB[2] +
+						SLERPquaternionA[3] * SLERPquaternionB[3]);
 
 	//Calculate what to multiply each quat by
 	double quatAMult = sin((1 - SLERPt) * angle) / sin(angle);
@@ -1444,6 +1484,59 @@ void Slerp(HWND _hwnd) {
 	//calculate Quaternion
 	for (int x = 0; x < 4; x++) {
 		SLERPquaternionR[x] = (SLERPquaternionA[x] * quatAMult + SLERPquaternionB[x] * quatBMult);
+	}
+
+	WriteSlerpQuat(_hwnd);
+}
+
+/// <summary>
+/// Calculates and generates the matrices induced by each quaternion - Jake
+/// </summary>
+void SlerpMatrix(HWND _hwnd, bool isSlerp, bool isA) {
+
+	Slerp(_hwnd);
+	ReadSlerpQuat(_hwnd);
+
+	double tempSlerpQuat[4] = { 0 };
+
+	for (int y = 0; y < 4; y++) {
+		tempSlerpQuat[y] = (isSlerp ? SLERPquaternionR : (isA ? SLERPquaternionA : SLERPquaternionB))[y];
+	}
+
+	double tempMatrix[4][4] = { 0 };
+	tempMatrix[3][3] = 1;
+
+	// 2*((real term)^2 + ((i term)^2)) - 1
+	tempMatrix[0][0] = (2 * ((pow(tempSlerpQuat[3], 2)) + (pow(tempSlerpQuat[0], 2)))) - 1;
+
+	// 2*((i term)*(j term) + (real term)(k term))
+	tempMatrix[0][1] = 2 * ((tempSlerpQuat[0] * tempSlerpQuat[1]) + (tempSlerpQuat[3] * tempSlerpQuat[2]));	
+
+	// 2*((i term)*(k term) - (real term)(j term))
+	tempMatrix[0][2] = 2 * ((tempSlerpQuat[0] * tempSlerpQuat[2]) - (tempSlerpQuat[3] * tempSlerpQuat[1]));
+
+	// 2*((i term)*(j term) - (real term)(k term))
+	tempMatrix[1][0] = 2 * ((tempSlerpQuat[0] * tempSlerpQuat[1]) - (tempSlerpQuat[3] * tempSlerpQuat[2]));
+
+	// 2*((real term)^2 + ((j term)^2)) - 1
+	tempMatrix[1][1] = (2 * ((pow(tempSlerpQuat[3], 2)) + (pow(tempSlerpQuat[1], 2)))) - 1;
+
+	// 2*((j term)*(k term) + (real term)(i term))
+	tempMatrix[1][2] = 2 * ((tempSlerpQuat[1] * tempSlerpQuat[2]) + (tempSlerpQuat[3] * tempSlerpQuat[0]));
+
+	// 2*((i term)*(k term) + (real term)(j term))
+	tempMatrix[2][0] = 2 * ((tempSlerpQuat[0] * tempSlerpQuat[2]) + (tempSlerpQuat[3] * tempSlerpQuat[1]));
+
+	// 2*((j term)*(k term) + (real term)(i term))
+	tempMatrix[2][1] = 2 * ((tempSlerpQuat[1] * tempSlerpQuat[2]) + (tempSlerpQuat[3] * tempSlerpQuat[0]));
+
+	// 2*((real term)^2 + ((k term)^2)) - 1
+	tempMatrix[2][2] = (2 * ((pow(tempSlerpQuat[3], 2)) + (pow(tempSlerpQuat[2], 2)))) - 1;
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			WriteToEditBox(_hwnd, SLERPMatrixRID[y][x], tempMatrix[y][x]);
+		}
 	}
 
 	WriteSlerpQuat(_hwnd);
