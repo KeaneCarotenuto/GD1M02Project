@@ -12,6 +12,11 @@
 // Mail			: keane.carotenuto@mds.ac.nz & jake.laird@mds.ac.nz
 //
 
+//check if radio button is checked
+//SendDlgItemMessage(IDC_RADIO, BM_GETCHECK) == BST_CHECKED
+//SendDlgItemMessage(hWndDlg, IDC_RADIO, BM_GETCHECK, 0, 0L ) == BST_CHECKED
+//check if radio button is NOT checked
+//SendDlgItemMessage(IDC_RADIO, BM_GETCHECK) == BST_UNCHECKED
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -158,6 +163,57 @@ void SlerpNormalise(HWND _hwnd);
 void SlerpMatrix(HWND _hwnd, bool isSlerp, bool isA);
 
 //Transformation Matrices Function Declarations And Variable Initialisations
+void ReadTransforms(HWND _hwnd);
+void WriteTransforms(HWND _hwnd);
+void ClearTransforms(HWND _hwnd);
+
+void ScaleTransform(HWND _hwnd);
+void TranslateTransform(HWND _hwnd);
+void RotateTransform(HWND _hwnd);
+void ProjectTransform(HWND _hwnd);
+
+void MultiplyTransforms(HWND _hwnd, float matrix[4][4]);
+
+float scaleData[3], translateData[3], rotateData[4], projectData[4];
+float resultantMatrix[4][4] = {
+	{1.f,0.f,0.f,0.f},
+	{0.f,1.f,0.f,0.f},
+	{0.f,0.f,1.f,0.f},
+	{0.f,0.f,0.f,1.f}
+};
+int scaleDataID[3] = {
+	{IDC_EDIT1},
+	{IDC_EDIT2},
+	{IDC_EDIT3}
+};
+int translateDataID[3] = {
+	{IDC_EDIT4},
+	{IDC_EDIT5},
+	{IDC_EDIT6}
+};
+int rotateDataID[4] = {
+	{IDC_EDIT13},
+	{IDC_RADIO1},
+	{IDC_RADIO2},
+	{IDC_RADIO3}
+};
+int projectDataID[4] = {
+	{IDC_EDIT15},
+	{IDC_RADIO4},
+	{IDC_RADIO5},
+	{IDC_RADIO6}
+};
+int columnResultID[4][4] = {
+	{IDC_EDIT8,IDC_EDIT9,IDC_EDIT10,IDC_EDIT11},
+	{IDC_EDIT12,IDC_EDIT16,IDC_EDIT18,IDC_EDIT19},
+	{IDC_EDIT20,IDC_EDIT21,IDC_EDIT22,IDC_EDIT23},
+	{IDC_EDIT24,IDC_EDIT25,IDC_EDIT26,IDC_EDIT27}
+};int rowResultID[4][4] = {
+	{IDC_EDIT47,IDC_EDIT48,IDC_EDIT49,IDC_EDIT50},
+	{IDC_EDIT51,IDC_EDIT52,IDC_EDIT53,IDC_EDIT54},
+	{IDC_EDIT55,IDC_EDIT56,IDC_EDIT57,IDC_EDIT58},
+	{IDC_EDIT59,IDC_EDIT60,IDC_EDIT61,IDC_EDIT62}
+};
 
 void GameLoop()
 {
@@ -388,14 +444,31 @@ BOOL CALLBACK TransformationDlgProc(HWND _hwnd,
 	WPARAM _wparam,
 	LPARAM _lparam)
 {
-
 	switch (_msg)
 	{
-	
 	case WM_COMMAND:
 	{
 		switch (LOWORD(_wparam))
 		{
+		case IDC_BUTTON4:
+			ScaleTransform(_hwnd);
+			break;
+
+		case IDC_BUTTON15:
+			TranslateTransform(_hwnd);
+			break;
+
+		case IDC_BUTTON16:
+			RotateTransform(_hwnd);
+			break;
+
+		case IDC_BUTTON17:
+			ProjectTransform(_hwnd);
+			break;
+
+		case IDC_COMBO1:
+			ClearTransforms(_hwnd);
+			break;
 
 		default:
 			break;
@@ -1403,6 +1476,8 @@ void CheckEchelonForms(HWND _hwnd)
 	}
 }
 
+//Functions specifically for the SLERP Calculator
+
 /// <summary>
 /// Reads the quaternion values from the program
 /// </summary>
@@ -1540,6 +1615,267 @@ void SlerpMatrix(HWND _hwnd, bool isSlerp, bool isA) {
 	}
 
 	WriteSlerpQuat(_hwnd);
+}
+
+//Functions specifically for the Transformation Calculator
+
+/// <summary>
+/// Reads all of the imputs in the window and assigns them to their respective matrices
+/// </summary>
+void ReadTransforms(HWND _hwnd) {
+	float temp = 0.f;
+	for (int y = 0; y < 4; y++) {
+		if (y < 3)
+		{
+			scaleData[y] = ReadFromEditBox(_hwnd, scaleDataID[y]);
+			translateData[y] = ReadFromEditBox(_hwnd, translateDataID[y]);
+		}
+
+		if (y == 0)
+		{
+			temp = ReadFromEditBox(_hwnd, rotateDataID[y]);
+
+			while (temp < 0.f || temp > 360.f)
+			{
+				if (temp < 0.f)
+				{
+					temp += 360.f;
+				}
+				else
+				{
+					if (temp > 360.f)
+					{
+						temp -= 360.f;
+					}
+				}
+			}
+
+			rotateData[y] = temp;
+			projectData[y] = ReadFromEditBox(_hwnd, projectDataID[y]);
+		}
+		else
+		{
+			rotateData[y] = (SendDlgItemMessage(_hwnd, rotateDataID[y], BM_GETCHECK, 0, 0L) == BST_CHECKED); // Pardon my language but fuck having to find this line to get the button states
+			projectData[y] = (SendDlgItemMessage(_hwnd, projectDataID[y], BM_GETCHECK, 0, 0L) == BST_CHECKED);
+		}
+	}
+}
+
+/// <summary>
+/// Writes to the window in both Column and Row major forms
+/// </summary>
+void WriteTransforms(HWND _hwnd) {
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			WriteToEditBox(_hwnd, columnResultID[y][x], resultantMatrix[y][x]);
+			WriteToEditBox(_hwnd, rowResultID[y][x], resultantMatrix[x][y]);
+		}
+	}
+}
+
+/// <summary>
+/// Resets the resultant transform matrix
+/// </summary>
+void ClearTransforms(HWND _hwnd) {
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (x == y)
+			{
+				resultantMatrix[y][x] = 1.f;
+			}
+			else
+			{
+				resultantMatrix[y][x] = 0.f;
+			}
+		}
+	}
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			WriteToEditBox(_hwnd, columnResultID[y][x], resultantMatrix[y][x]);
+			WriteToEditBox(_hwnd, rowResultID[y][x], resultantMatrix[x][y]);
+		}
+	}
+}
+
+
+/// <summary>
+/// Writes to the window in both Column and Row major forms
+/// </summary>
+void ScaleTransform(HWND _hwnd) {
+	ReadTransforms(_hwnd);
+
+	float scaleMatrix[4][4] = { 0.f };
+
+	scaleMatrix[3][3] = 1.f;
+
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 3; x++) {
+			if (x == y)
+			{
+				if (scaleData[y] == NULL)
+				{
+					scaleMatrix[y][x] = 1.f;
+				}
+				else
+				{
+					scaleMatrix[y][x] = scaleData[y];
+				}
+			}
+		}
+	}
+
+	MultiplyTransforms(_hwnd, scaleMatrix);
+}
+
+/// <summary>
+/// Writes to the window in both Column and Row major forms
+/// </summary>
+void TranslateTransform(HWND _hwnd) {
+	ReadTransforms(_hwnd);
+
+	float translateMatrix[4][4] = { 0.f };
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (x == y)
+			{
+				translateMatrix[y][x] = 1.f;
+			}
+
+			if (x == 3 && y!= 3)
+			{
+				if (translateData[y] == NULL)
+				{
+					translateMatrix[y][x] = 0.f;
+				}
+				else
+				{
+					translateMatrix[y][x] = translateData[y];
+				}
+			}
+		}
+	}
+
+	MultiplyTransforms(_hwnd, translateMatrix);
+}
+
+/// <summary>
+/// Writes to the window in both Column and Row major forms
+/// </summary>
+void RotateTransform(HWND _hwnd) {
+	ReadTransforms(_hwnd);
+
+	float rotateMatrix[4][4] = { 0.f };
+
+	// Yeah I know it's the first hundred digits of pi and that I don't need to be *that* exact but I like having this degree of accuracy, just give me this one :D
+	float pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			if (x == y)
+			{
+				rotateMatrix[y][x] = 1.f;
+			}
+		}
+	}
+
+	float radiansConversion = rotateData[0] * (pi / 180); // Converting to radians
+
+	float cosine = cos(radiansConversion); // Takes radians as input
+	float sine = sin(radiansConversion); // Takes radians as input
+
+	float miniRotate[2][2] = {
+		{cosine, (sine * -1)},
+		{sine, cosine}
+	};
+
+	if (rotateData[1]) // X radio button selected
+	{
+		for (int y = 0; y < 2; y++) {
+			for (int x = 0; x < 2; x++) {
+				rotateMatrix[y + 1][x + 1] = miniRotate[y][x];
+			}
+		}
+	}
+	else if (rotateData[2]) // Y radio button selected
+	{
+		rotateMatrix[0][0] = miniRotate[0][0];
+		rotateMatrix[0][2] = miniRotate[1][0];
+		rotateMatrix[2][0] = miniRotate[0][1];
+		rotateMatrix[2][2] = miniRotate[1][1];
+	}
+	else
+	{
+		if (rotateData[3]) // Z radio button selected
+		{
+			for (int y = 0; y < 2; y++) {
+				for (int x = 0; x < 2; x++) {
+					rotateMatrix[y][x] = miniRotate[y][x];
+				}
+			}
+		}
+	}
+
+	MultiplyTransforms(_hwnd, rotateMatrix);
+}
+
+/// <summary>
+/// Writes to the window in both Column and Row major forms
+/// </summary>
+void ProjectTransform(HWND _hwnd) {
+	ReadTransforms(_hwnd);
+
+	float projectMatrix[4][4] = { 0.f };
+
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 3; x++) {
+			if (x == y)
+			{
+				projectMatrix[y][x] = 1.f;
+			}
+		}
+	}
+
+	if (projectData[1]) // X radio button selected
+	{
+		projectMatrix[3][0] = (1 / projectData[0]);
+	}
+	else if (projectData[2]) // Y radio button selected
+	{
+		projectMatrix[3][1] = (1 / projectData[0]);
+	}
+	else
+	{
+		if (projectData[3]) // Z radio button selected
+		{
+			projectMatrix[3][2] = (1 / projectData[0]);
+		}
+	}
+
+	MultiplyTransforms(_hwnd, projectMatrix);
+}
+
+void MultiplyTransforms(HWND _hwnd, float matrix[4][4])
+{
+	float tempMatrix[4][4] = { 0.f };
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			for (int w = 0; w < 4; w++) {
+				tempMatrix[y][x] += matrix[y][w] * resultantMatrix[w][x];
+			}
+		}
+	}
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			resultantMatrix[y][x] = tempMatrix[y][x];
+		}
+	}
+
+	WriteTransforms(_hwnd);
 }
 
 /*std::wstringstream wss;

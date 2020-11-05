@@ -92,6 +92,7 @@
 #define IDC_EDIT40                      1040
 #define IDC_RADIO6                      1040
 #define IDC_EDIT41                      1041
+#define IDC_BUTTON18                    1041
 #define IDC_EDIT42                      1042
 #define IDC_EDIT43                      1043
 #define IDC_EDIT44                      1044
