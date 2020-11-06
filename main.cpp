@@ -1655,7 +1655,7 @@ void ReadTransforms(HWND _hwnd) {
 		}
 		else
 		{
-			rotateData[y] = (SendDlgItemMessage(_hwnd, rotateDataID[y], BM_GETCHECK, 0, 0L) == BST_CHECKED); // Pardon my language but fuck having to find this line to get the button states
+			rotateData[y] = (SendDlgItemMessage(_hwnd, rotateDataID[y], BM_GETCHECK, 0, 0L) == BST_CHECKED);
 			projectData[y] = (SendDlgItemMessage(_hwnd, projectDataID[y], BM_GETCHECK, 0, 0L) == BST_CHECKED);
 		}
 	}
